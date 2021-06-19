@@ -59,11 +59,11 @@ module CBin
 
 
       def framework_name(spec)
-        "#{spec.name}.framework"
+        "#{spec.name}.xcframework"
       end
 
       def framework_name_version(spec)
-        "#{spec.name}.framework_#{spec.version}"
+        "#{spec.name}.xcframework_#{spec.version}"
       end
 
       def framework_zip_file(spec)

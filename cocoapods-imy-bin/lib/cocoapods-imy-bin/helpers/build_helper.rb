@@ -4,7 +4,6 @@ require 'cocoapods-imy-bin/native/podfile'
 require 'cocoapods/command/gen'
 require 'cocoapods/generate'
 require 'cocoapods-imy-bin/helpers/framework_builder'
-require 'cocoapods-imy-bin/helpers/library_builder'
 require 'cocoapods-imy-bin/config/config_builder'
 
 module CBin
@@ -37,14 +36,8 @@ module CBin
         UI.section("Building static framework #{@spec}") do
 
           build_static_framework
-          unless @skip_archive
-            unless  CBin::Build::Utils.is_framework(@spec)
-              build_static_library
-              zip_static_library
-            else
-              zip_static_framework
-            end
-          end
+          zip_static_framework
+          # 暂时不支持静态库 都是动态的
 
         end
 
@@ -57,25 +50,18 @@ module CBin
           builder = CBin::Framework::Builder.new(@spec, file_accessor, @platform, source_dir, @isRootSpec, @build_model )
           @@build_defines = builder.build if @isRootSpec
           begin
-            @framework_path = builder.lipo_build(@@build_defines) unless @skip_archive
+            @framework_path = builder.output_xcframework(@@build_defines) unless @skip_archive
           rescue
             @skip_archive = true
           end
         end
       end
 
-      def build_static_library
-        source_dir = zip_dir
-        file_accessor = Sandbox::FileAccessor.new(Pathname.new('.').expand_path, @spec.consumer(@platform))
-        Dir.chdir(workspace_directory) do
-          builder = CBin::Library::Builder.new(@spec, file_accessor, @platform, source_dir,@framework_path)
-          builder.build
-        end
-      end
-
       def zip_static_framework
-        Dir.chdir(File.join(workspace_directory,@framework_path.root_path)) do
+        Dir.chdir(File.join(workspace_directory,@framework_path)) do
+          zip_dir.mkpath
           output_name =  File.join(zip_dir, framework_name_zip)
+
           unless File.exist?(framework_name)
             UI.puts "没有需要压缩的 framework 文件：#{framework_name}"
             return
@@ -85,21 +71,6 @@ module CBin
           `zip --symlinks -r #{output_name} #{framework_name}`
         end
       end
-
-      def zip_static_library
-        Dir.chdir(zip_dir) do
-          output_library = "#{library_name}.zip"
-          unless File.exist?(library_name)
-            raise Informative, "没有需要压缩的 library 文件：#{library_name}"
-          end
-
-          UI.puts "Compressing #{library_name} into #{output_library}"
-
-          `zip --symlinks -r #{output_library} #{library_name}`
-        end
-
-      end
-
 
       def clean_workspace
         UI.puts 'Cleaning workspace'

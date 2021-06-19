@@ -9,9 +9,10 @@ module CBin
       attr_reader :code_spec
       attr_reader :spec
 
-      def initialize(code_spec, platforms = 'ios')
+      def initialize(code_spec, platforms = 'ios', is_framework = false)
         @code_spec = code_spec
         @platforms = Array(platforms)
+        @is_framework = is_framework
         validate!
       end
 
@@ -21,7 +22,7 @@ module CBin
 
       def create
         # spec = nil
-        if CBin::Build::Utils.is_framework(@code_spec)
+        if @is_framework
           spec = create_framework_from_code_spec
         else
           spec = create_from_code_spec
@@ -139,7 +140,7 @@ module CBin
         # license | resource_bundles | vendored_libraries
 
         # Project Linkin
-        @spec.vendored_frameworks = "#{code_spec.root.name}.framework"
+        @spec.vendored_frameworks = "#{code_spec.root.name}.xcframework"
 
         # Resources
         extnames = []

@@ -6,7 +6,6 @@ require 'cocoapods-imy-bin/native/podfile'
 require 'cocoapods/command/gen'
 require 'cocoapods/generate'
 require 'cocoapods-imy-bin/helpers/framework_builder'
-require 'cocoapods-imy-bin/helpers/library_builder'
 require 'cocoapods-imy-bin/helpers/sources_helper'
 require 'cocoapods-imy-bin/command/bin/spec/push'
 
@@ -15,10 +14,11 @@ module CBin
     class Helper
       include CBin::SourcesHelper
 
-      def initialize(spec,code_dependencies,sources)
+      def initialize(spec,code_dependencies,sources, is_framework = false)
         @spec = spec
         @code_dependencies = code_dependencies
         @sources = sources
+        @is_framework = is_framework
       end
 
       def upload
@@ -36,7 +36,7 @@ module CBin
       end
 
       def spec_creator
-        spec_creator = CBin::SpecificationSource::Creator.new(@spec)
+        spec_creator = CBin::SpecificationSource::Creator.new(@spec, 'ios', @is_framework)
         spec_creator.create
         spec_creator.write_spec_file
         spec_creator.filename

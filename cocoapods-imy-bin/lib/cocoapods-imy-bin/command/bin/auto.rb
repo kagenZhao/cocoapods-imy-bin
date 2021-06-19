@@ -19,9 +19,10 @@ module Pod
               ['--framework-output', '输出framework文件'],
               ['--no-zip', '不压缩静态 framework 为 zip'],
               ['--all-make', '对该组件的依赖库，全部制作为二进制组件'],
+              ['--use-framework', '制作动态库'],
               ['--configuration', 'Build the specified configuration (e.g. Release ). Defaults to Debug'],
               ['--env', "该组件上传的环境 %w[dev debug_iphoneos release_iphoneos]"]
-          ].concat(Pod::Command::Gen.options).concat(super).uniq
+          ].concat(Pod::Command::Gen.options).concat(super).uniq # uniq 去重
         end
 
         def initialize(argv)
@@ -38,6 +39,7 @@ module Pod
           @clean = argv.flag?('clean', true)
           @zip = argv.flag?('zip', true)
           @all_make = argv.flag?('all-make', false )
+          @use_framework = argv.flag?('use-framework', false)
           @verbose = argv.flag?('verbose',true)
 
           @config = argv.option('configuration', 'Debug')
@@ -59,7 +61,7 @@ module Pod
           fail_push_specs = []
           source_specs.uniq.each do |spec|
             begin
-              fail_push_specs << spec unless CBin::Upload::Helper.new(spec,@code_dependencies,@sources).upload
+              fail_push_specs << spec unless CBin::Upload::Helper.new(spec,@code_dependencies,@sources, @use_framework).upload
             rescue  Object => exception
               UI.puts exception
               fail_push_specs << spec
