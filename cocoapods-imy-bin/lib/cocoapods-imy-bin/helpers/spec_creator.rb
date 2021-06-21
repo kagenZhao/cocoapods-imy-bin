@@ -61,7 +61,7 @@ module CBin
         # license | resource_bundles | vendored_libraries
 
         # Project Linkin
-        @spec.vendored_frameworks = "#{code_spec.root.name}.framework"
+        @spec.vendored_frameworks = "#{code_spec.root.name}.xcframework"
 
         # Resources
         extnames = []
@@ -77,8 +77,8 @@ module CBin
         @spec.source = binary_source
 
         # Source Code
-        @spec.source_files = framework_contents('Headers/*')
-        @spec.public_header_files = framework_contents('Headers/*')
+        # @spec.source_files = framework_contents('Headers/*')
+        # @spec.public_header_files = framework_contents('Headers/*')
 
         # Unused for binary
         spec_hash = @spec.to_hash
@@ -92,8 +92,8 @@ module CBin
         # 这里统一只对命名后缀 .a 文件做处理
         # spec_hash.delete('vendored_libraries')
         # libraries 只能假设为动态库不做处理了，如果有例外，需要开发者自行处理
-        spec_hash.delete('vendored_libraries')
-        spec_hash['vendored_libraries'] = binary_vendored_libraries
+        # spec_hash.delete('vendored_libraries')
+        # spec_hash['vendored_libraries'] = binary_vendored_libraries
 
         # vendored_libraries = Array(vendored_libraries).reject { |l| l.end_with?('.a') }
         # if vendored_libraries.any?

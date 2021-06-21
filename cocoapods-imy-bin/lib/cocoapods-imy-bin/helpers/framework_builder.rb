@@ -103,7 +103,7 @@ module CBin
 
       def xcodebuild(defines = '', args = '', build_dir = 'build', build_model = 'Release')
         command = "
-        xcodebuild archive \\
+        xcodebuild \\
         #{defines} #{args} \\
         CONFIGURATION_BUILD_DIR=#{File.join(File.expand_path("..", build_dir), File.basename(build_dir))} \\
         clean build \\
