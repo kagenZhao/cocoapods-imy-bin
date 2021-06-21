@@ -42,7 +42,7 @@ module Pod
           @use_framework = argv.flag?('use-framework', false)
           @verbose = argv.flag?('verbose',true)
 
-          @config = argv.option('configuration', 'Debug')
+          @config = argv.option('configuration', 'Release')
           @additional_args = argv.remainder!
 
           super

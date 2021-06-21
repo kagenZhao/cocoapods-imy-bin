@@ -1,6 +1,6 @@
 # copy from https://github.com/CocoaPods/cocoapods-packager
 
-require 'cocoapods-imy-bin/helpers/framework.rb'
+
 require 'English'
 require 'cocoapods-imy-bin/config/config_builder'
 require 'shellwords'
@@ -101,16 +101,16 @@ module CBin
         end
       end
 
-      def xcodebuild(defines = '', args = '', build_dir = 'build', build_model = 'Debug')
+      def xcodebuild(defines = '', args = '', build_dir = 'build', build_model = 'Release')
         command = "
-        xcodebuild archive \
-        #{defines} #{args} \
-        CONFIGURATION_BUILD_DIR=#{File.join(File.expand_path("..", build_dir), File.basename(build_dir))} \
-        clean build \
-        -configuration #{build_model} \
-        -target #{target_name} -project ./Pods/Pods.xcodeproj \
-        SKIP_INSTALL=NO \
-        BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+        xcodebuild archive \\
+        #{defines} #{args} \\
+        CONFIGURATION_BUILD_DIR=#{File.join(File.expand_path("..", build_dir), File.basename(build_dir))} \\
+        clean build \\
+        -configuration #{build_model} \\
+        -target #{target_name} -project ./Pods/Pods.xcodeproj \\
+        SKIP_INSTALL=NO \\
+        BUILD_LIBRARY_FOR_DISTRIBUTION=YES \\
         2>&1
         "
 
