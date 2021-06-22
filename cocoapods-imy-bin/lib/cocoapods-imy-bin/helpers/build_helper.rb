@@ -36,7 +36,7 @@ module CBin
         UI.section("Building static framework #{@spec}") do
 
           build_static_framework
-          zip_static_framework
+          zip_static_framework unless @skip_archive
           # 暂时不支持静态库 都是动态的
 
         end

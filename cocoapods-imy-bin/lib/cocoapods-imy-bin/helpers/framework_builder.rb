@@ -58,7 +58,7 @@ module CBin
         build_path.mkpath unless build_path.exist?
 
         libs = [ios_architectures, ios_architectures_sim].map do |arch|
-          library = "build-#{arch}/#{@spec.name}.framework"
+          library = "build-#{arch}/#{project_name}.framework"
           library
         end
 
@@ -91,6 +91,22 @@ module CBin
         defines
       end
 
+      def project_name
+        if @project_name
+          @project_name
+        else
+          command = "xcodebuild -target #{target_name} -project ./Pods/Pods.xcodeproj -configuration #{@build_model} -showBuildSettings  | grep -i ' PRODUCT_NAME'"
+          output = `#{command}`.to_s
+          if $CHILD_STATUS.exitstatus != 0
+            @spec.name
+          else
+            matched = output.match(/PRODUCT_NAME\s?=\s?(.*?)$/)
+            @project_name = matched[1]
+            @project_name
+          end
+        end
+      end
+
       def target_name
         #区分多平台，如配置了多平台，会带上平台的名字
         # 如libwebp-iOS
@@ -103,12 +119,14 @@ module CBin
 
       def xcodebuild(defines = '', args = '', build_dir = 'build', build_model = 'Release')
         command = "
-        xcodebuild \\
+        xcodebuild archive\\
         #{defines} #{args} \\
         CONFIGURATION_BUILD_DIR=#{File.join(File.expand_path("..", build_dir), File.basename(build_dir))} \\
         clean build \\
         -configuration #{build_model} \\
-        -target #{target_name} -project ./Pods/Pods.xcodeproj \\
+        -target #{target_name} \\
+        -project ./Pods/Pods.xcodeproj \\
+        DEBUG_INFORMATION_FORMAT='dwarf' \\
         SKIP_INSTALL=NO \\
         BUILD_LIBRARY_FOR_DISTRIBUTION=YES \\
         2>&1
@@ -135,7 +153,7 @@ module CBin
       end
 
       def xcframeworkPath
-        return Pathname.new(@platform.name.to_s) + "#{@spec.name}.xcframework"
+        return Pathname.new(@platform.name.to_s) + "#{project_name}.xcframework"
       end
 
     end
