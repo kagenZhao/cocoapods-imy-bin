@@ -1,2 +1,9 @@
 .DS_Store
 .idea/
+CocoaPods
+SnapKit
+cocoapods-binary-server
+realm-cocoa-build-temp
+realm-cocoa
+Xcodeproj
+SnapKit-build-temp
