@@ -12,6 +12,7 @@ module CBin
 
       def initialize
         load_build_config
+        @project_name_hash={}
         # clean
       end
 
@@ -57,13 +58,20 @@ module CBin
                      end
       end
 
+      def set_project_name(spec, project_name)
+        @project_name_hash[spec.name] = project_name
+      end
+
+      def project_name(spec)
+        @project_name_hash[spec.name] || spec.name
+      end
 
       def framework_name(spec)
-        "#{spec.name}.xcframework"
+        "#{project_name(spec)}.xcframework"
       end
 
       def framework_name_version(spec)
-        "#{spec.name}.xcframework_#{spec.version}"
+        "#{project_name(spec)}.xcframework_#{spec.version}"
       end
 
       def framework_zip_file(spec)
