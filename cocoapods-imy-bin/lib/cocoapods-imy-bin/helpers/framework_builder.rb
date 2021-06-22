@@ -118,6 +118,8 @@ module CBin
         -target #{target_name} \\
         -project ./Pods/Pods.xcodeproj \\
         DEBUG_INFORMATION_FORMAT='dwarf' \\
+        BITCODE_GENERATION_MODE=bitcode \\
+        OTHER_CFLAGS=\"-fembed-bitcode -Qunused-arguments\" \\
         SKIP_INSTALL=NO \\
         BUILD_LIBRARY_FOR_DISTRIBUTION=YES \\
         2>&1
