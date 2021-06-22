@@ -45,12 +45,8 @@ module CBin
       #推送二进制
       # curl http://ci.xxx:9192/frameworks -F "name=IMYFoundation" -F "version=7.7.4.2" -F "annotate=IMYFoundation_7.7.4.2_log" -F "file=@bin-zip/bin_IMYFoundation_7.7.4.2.zip"
       def curl_zip
-        zip_file = "#{CBin::Config::Builder.instance.library_file(@spec)}.zip"
+        zip_file = CBin::Config::Builder.instance.framework_zip_file(@spec)
         res = File.exist?(zip_file)
-        unless res
-          zip_file = CBin::Config::Builder.instance.framework_zip_file(@spec) + ".zip"
-          res = File.exist?(zip_file)
-        end
         if res
           command = "curl #{CBin.config.binary_upload_url} -F \"name=#{@spec.name}\" -F \"version=#{@spec.version}\" -F \"annotate=#{@spec.name}_#{@spec.version}_log\" -F \"file=@#{zip_file}\""
           print <<EOF

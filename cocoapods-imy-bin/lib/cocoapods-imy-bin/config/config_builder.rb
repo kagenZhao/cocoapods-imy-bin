@@ -70,27 +70,16 @@ module CBin
         "#{project_name(spec)}.xcframework"
       end
 
-      def framework_name_version(spec)
-        "#{project_name(spec)}.xcframework_#{spec.version}"
+      def framework_zip_file_name(spec)
+        "#{spec.name}.xcframework_#{spec.version}.zip"
       end
 
       def framework_zip_file(spec)
-        File.join(zip_dir_name, framework_name_version(spec))
+        File.join(zip_dir_name, framework_zip_file_name(spec))
       end
 
       def framework_file(spec)
         File.join(zip_dir_name, framework_name(spec))
-      end
-
-      def library_name(spec)
-        library_name_version(spec.name, spec.version)
-      end
-
-      def library_name_version(name,version)
-        "bin_#{name}_#{version}"
-      end
-      def library_file(spec)
-        File.join(zip_dir_name, library_name(spec))
       end
 
       def zip_dir_name

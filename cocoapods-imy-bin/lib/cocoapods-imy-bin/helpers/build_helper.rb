@@ -76,7 +76,6 @@ module CBin
         FileUtils.rm_rf(gen_name)
         Dir.chdir(zip_dir) do
           FileUtils.rm_rf(framework_name) if @zip
-          FileUtils.rm_rf(library_name)
           FileUtils.rm_rf(framework_name) unless @framework_output
           FileUtils.rm_rf("#{framework_name}.zip") unless @framework_output
         end
@@ -87,11 +86,7 @@ module CBin
       end
 
       def framework_name_zip
-        CBin::Config::Builder.instance.framework_name_version(@spec) + ".zip"
-      end
-
-      def library_name
-        CBin::Config::Builder.instance.library_name(@spec)
+        CBin::Config::Builder.instance.framework_zip_file_name(@spec)
       end
 
       def workspace_directory

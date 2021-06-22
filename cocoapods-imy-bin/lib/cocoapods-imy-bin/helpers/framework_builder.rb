@@ -36,7 +36,7 @@ module CBin
       end
 
       def output_xcframework()
-        UI.section("Building static Library #{@spec}") do
+        UI.section("Building XCFramework #{@spec}") do
           build_xcframework_for_ios(xcframeworkPath)
         end
         Pathname(@platform.name.to_s)
@@ -45,7 +45,6 @@ module CBin
       private
 
       def build_xcframework_for_ios(output)
-        UI.message "Building ios libraries"
         rootPath = File.join(File.expand_path("..", output), File.basename(output))
         build_path = Pathname("build")
         build_path.mkpath unless build_path.exist?
