@@ -28,8 +28,6 @@ module CBin
         @skip_archive = skip_archive
         @framework_output = framework_output
         @zip = zip
-
-        @framework_path
       end
 
       def build
@@ -48,9 +46,9 @@ module CBin
         file_accessor = Sandbox::FileAccessor.new(Pathname.new('.').expand_path, @spec.consumer(@platform))
         Dir.chdir(workspace_directory) do
           builder = CBin::Framework::Builder.new(@spec, file_accessor, @platform, source_dir, @isRootSpec, @build_model )
-          @@build_defines = builder.build if @isRootSpec
+          builder.build if @isRootSpec
           begin
-            @framework_path = builder.output_xcframework(@@build_defines) unless @skip_archive
+            @framework_path = builder.output_xcframework unless @skip_archive
           rescue
             @skip_archive = true
           end

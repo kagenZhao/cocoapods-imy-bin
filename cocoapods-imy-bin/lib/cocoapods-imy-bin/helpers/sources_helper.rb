@@ -25,6 +25,7 @@ module CBin
       unless code_dependencies
         sources << binary_source
         sources.reverse!
+        sources.uniq!
       end
       sources
     end

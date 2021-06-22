@@ -31,13 +31,11 @@ module CBin
       end
 
       def build
-        defines = compile
-        build_sim_framework(defines)
-
-        defines
+        buildOS
+        buildSimulator
       end
 
-      def output_xcframework(defines)
+      def output_xcframework()
         UI.section("Building static Library #{@spec}") do
           build_xcframework_for_ios(xcframeworkPath)
         end
@@ -46,18 +44,13 @@ module CBin
 
       private
 
-      def build_sim_framework(defines)
-        UI.message 'Building simulator libraries'
-        xcodebuild(defines, "-destination=\"iOS\" -sdk iphonesimulator ", "build-iphonesimulator",@build_model)
-      end
-
       def build_xcframework_for_ios(output)
-        UI.message "Building ios libraries with archs #{ios_architectures}"
+        UI.message "Building ios libraries"
         rootPath = File.join(File.expand_path("..", output), File.basename(output))
         build_path = Pathname("build")
         build_path.mkpath unless build_path.exist?
 
-        libs = [ios_architectures, ios_architectures_sim].map do |arch|
+        libs = %w[iphoneos iphonesimulator].map do |arch|
           library = "build-#{arch}/#{project_name}.framework"
           library
         end
@@ -66,42 +59,38 @@ module CBin
           "-framework #{File.join(File.expand_path("..", lib), File.basename(lib))}"
         end
 
-        command = "xcodebuild -create-xcframework #{frameworks.join(' ')} -output #{rootPath}"
+        command = "xcodebuild -create-xcframework -allow-internal-distribution #{frameworks.join(' ')} -output #{rootPath}"
         UI.message "command = #{command}"
         `#{command}`
       end
 
-      def ios_architectures
-        archs = "iphoneos"
-        archs
+      def defines
+        arg_defines = "GCC_PREPROCESSOR_DEFINITIONS='$(inherited)'"
+        arg_defines += ""
+        arg_defines += @spec.consumer(@platform).compiler_flags.join(' ')
+        arg_defines
       end
 
-      def ios_architectures_sim
-        archs = "iphonesimulator"
-        archs
+      def buildOS
+        xcodebuild('-sdk iphoneos', 'build-iphoneos')
       end
 
-      def compile
-        defines = "GCC_PREPROCESSOR_DEFINITIONS='$(inherited)'"
-        defines += ' '
-        defines += @spec.consumer(@platform).compiler_flags.join(' ')
-
-        xcodebuild(defines, "-destination=\"iOS\" -sdk iphoneos OTHER_CFLAGS=\"-fembed-bitcode -Qunused-arguments\"","build-#{ios_architectures}",@build_model)
-
-        defines
+      def buildSimulator
+        xcodebuild('-sdk iphonesimulator ONLY_ACTIVE_ARCH=NO', 'build-iphonesimulator')
       end
 
       def project_name
         if @project_name
           @project_name
         else
-          command = "xcodebuild -target #{target_name} -project ./Pods/Pods.xcodeproj -configuration #{@build_model} -showBuildSettings  | grep -i ' PRODUCT_NAME'"
+          command = "xcodebuild -target #{target_name} -project ./Pods/Pods.xcodeproj -configuration #{@build_model} -showBuildSettings  | grep -i ' PRODUCT_NAME' "
           output = `#{command}`.to_s
           if $CHILD_STATUS.exitstatus != 0
             @spec.name
           else
             matched = output.match(/PRODUCT_NAME\s?=\s?(.*?)$/)
             @project_name = matched[1]
+            CBin::Config::Builder.instance.set_project_name(@spec, @project_name)
             @project_name
           end
         end
@@ -110,20 +99,23 @@ module CBin
       def target_name
         #区分多平台，如配置了多平台，会带上平台的名字
         # 如libwebp-iOS
-        if @spec.available_platforms.count > 1
-          "#{@spec.name}-#{Platform.string_name(@spec.consumer(@platform).platform_name)}"
-        else
+        unless @isRootSpec
           @spec.name
+        else
+          if @spec.available_platforms.count > 1
+            "#{@spec.name}-#{Platform.string_name(@spec.consumer(@platform).platform_name)}"
+          else
+            @spec.name
+          end
         end
       end
 
-      def xcodebuild(defines = '', args = '', build_dir = 'build', build_model = 'Release')
+      def xcodebuild(args = '', build_dir)
         command = "
-        xcodebuild archive\\
+        xcodebuild build \\
         #{defines} #{args} \\
         CONFIGURATION_BUILD_DIR=#{File.join(File.expand_path("..", build_dir), File.basename(build_dir))} \\
-        clean build \\
-        -configuration #{build_model} \\
+        -configuration #{@build_model} \\
         -target #{target_name} \\
         -project ./Pods/Pods.xcodeproj \\
         DEBUG_INFORMATION_FORMAT='dwarf' \\
