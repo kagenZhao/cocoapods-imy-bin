@@ -37,7 +37,7 @@ module CBin
 
         end
 
-      endz
+      end
 
       def build_static_framework
         source_dir = Dir.pwd
