@@ -27,7 +27,6 @@ module Pod
               ['--no-clean', '保留构建中间产物'],
               ['--sources', '私有源地址，多个用分号区分'],
               ['--framework-output', '输出framework文件'],
-              ['--no-zip', '不压缩静态库 为 zip'],
               ['--configuration', 'Build the specified configuration (e.g. Debug). Defaults to Release'],
               ['--env', "该组件上传的环境 %w[dev debug_iphoneos release_iphoneos]"]
           ].concat(Pod::Command::Gen.options).concat(super).uniq
@@ -47,7 +46,6 @@ module Pod
           @code_dependencies = argv.flag?('code-dependencies')
           @framework_output = argv.flag?('framework-output', false )
           @clean = argv.flag?('no-clean', false)
-          @zip = argv.flag?('zip', true)
           @all_make = argv.flag?('all-make', false )
           @sources = argv.option('sources') || []
           @platform = Platform.new(:ios)
@@ -81,7 +79,6 @@ module Pod
           builder = CBin::Build::Helper.new(@spec,
                                             @platform,
                                             @framework_output,
-                                            @zip,
                                             @spec,
                                             CBin::Config::Builder.instance.white_pod_list.include?(@spec.name),
                                             @config)
@@ -124,7 +121,6 @@ module Pod
               builder = CBin::Build::Helper.new(spec,
                                                 @platform,
                                                 @framework_output,
-                                                @zip,
                                                 @spec,
                                                 false ,
                                                 @config)

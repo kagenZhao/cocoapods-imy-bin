@@ -16,7 +16,6 @@ module CBin
       def initialize(spec,
                      platform,
                      framework_output,
-                     zip,
                      rootSpec,
                      skip_archive = false,
                      build_model="Release")
@@ -27,7 +26,6 @@ module CBin
         @isRootSpec = rootSpec.name == spec.name
         @skip_archive = skip_archive
         @framework_output = framework_output
-        @zip = zip
       end
 
       def build
@@ -39,7 +37,7 @@ module CBin
 
         end
 
-      end
+      endz
 
       def build_static_framework
         source_dir = Dir.pwd
@@ -75,7 +73,7 @@ module CBin
 
         FileUtils.rm_rf(gen_name)
         Dir.chdir(zip_dir) do
-          FileUtils.rm_rf(framework_name) if @zip
+          FileUtils.rm_rf(framework_name)
           FileUtils.rm_rf(framework_name) unless @framework_output
           FileUtils.rm_rf("#{framework_name}.zip") unless @framework_output
         end

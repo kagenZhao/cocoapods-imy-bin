@@ -17,9 +17,9 @@ module Pod
               ['--allow-prerelease', '允许使用 prerelease 的版本'],
               ['--no-clean', '保留构建中间产物'],
               ['--framework-output', '输出framework文件'],
-              ['--no-zip', '不压缩静态 framework 为 zip'],
               ['--all-make', '对该组件的依赖库，全部制作为二进制组件'],
               ['--use-framework', '制作动态库'],
+              ['--only-build', '只生成framework文件, 不主动上传'],
               ['--configuration', 'Build the specified configuration (e.g. Release ). Defaults to Debug'],
               ['--env', "该组件上传的环境 %w[dev debug_iphoneos release_iphoneos]"]
           ].concat(Pod::Command::Gen.options).concat(super).uniq # uniq 去重
@@ -37,10 +37,10 @@ module Pod
           @allow_prerelease = argv.flag?('allow-prerelease')
           @framework_output = argv.flag?('framework-output', false )
           @clean = argv.flag?('clean', true)
-          @zip = argv.flag?('zip', true)
           @all_make = argv.flag?('all-make', false )
           @use_framework = argv.flag?('use-framework', false)
           @verbose = argv.flag?('verbose',true)
+          @only_build = argv.flag?('only-build', false)
 
           @config = argv.option('configuration', 'Release')
           @additional_args = argv.remainder!
@@ -57,6 +57,8 @@ module Pod
           @specification = Specification.from_file(@podspec)
 
           source_specs = run_archive
+
+          return if @only_build
 
           fail_push_specs = []
           source_specs.uniq.each do |spec|
